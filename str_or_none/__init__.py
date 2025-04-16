@@ -13,7 +13,8 @@ def str_or_none(
     if value is None:
         return None
 
-    elif isinstance(value, typing.TextIO):
+    # Handle file-like objects (TextIO, StringIO, etc.)
+    if hasattr(value, "read") and callable(value.read):
         _text = value.read()
         _text = _text.strip() if strip else _text
         return _text
@@ -37,19 +38,18 @@ def str_or_none(
             )
         return value.isoformat()
 
-    elif isinstance(
-        value, (typing.List, typing.Tuple, typing.Sequence, typing.Iterable)
-    ):
+    # Dict check before sequence/iterable
+    elif isinstance(value, dict):
+        if strict:
+            raise ValueError(f"Dict cannot be converted to str in strict mode: {value}")
+        return json.dumps(value, default=str)
+
+    elif isinstance(value, (list, tuple, set, typing.Sequence, typing.Iterable)):
         if strict:
             raise ValueError(
                 f"Sequence cannot be converted to str in strict mode: {value}"
             )
         return json.dumps(list(value), default=str)
-
-    elif isinstance(value, (typing.Dict,)):
-        if strict:
-            raise ValueError(f"Dict cannot be converted to str in strict mode: {value}")
-        return json.dumps(value, default=str)
 
     # __str__ or __repr__
     elif hasattr(value, "__str__") or hasattr(value, "__repr__"):
