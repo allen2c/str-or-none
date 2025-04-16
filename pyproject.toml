@@ -14,6 +14,7 @@ python = ">=3.8,<4"
 black = "*"
 isort = "*"
 poetry-plugin-export = "*"
+pytest = "*"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
