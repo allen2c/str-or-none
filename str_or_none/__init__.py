@@ -65,8 +65,10 @@ def str_or_none(
 
 
 class CallableModule(types.ModuleType):
-    def __call__(self, *args, **kwargs):
-        return str_or_none(*args, **kwargs)
+    def __call__(
+        self, value: typing.Any, *, strip: bool = True, strict: bool = True
+    ) -> typing.Optional[str]:
+        return str_or_none(value, strip=strip, strict=strict)
 
 
 current_module = sys.modules[__name__]
