@@ -8,7 +8,11 @@ from numbers import Number
 
 
 def str_or_none(
-    value: typing.Any, *, strip: bool = True, strict: bool = True
+    value: typing.Any,
+    *,
+    strip: bool = True,
+    strict: bool = True,
+    empty_str_to_none: bool = True,
 ) -> typing.Optional[str]:
     if value is None:
         return None
@@ -17,12 +21,12 @@ def str_or_none(
     if hasattr(value, "read") and callable(value.read):
         _text = value.read()
         _text = _text.strip() if strip else _text
-        return _text
+        return None if not _text and empty_str_to_none else _text
 
     elif isinstance(value, typing.Text):
         _text = value
         _text = _text.strip() if strip else _text
-        return _text
+        return None if not _text and empty_str_to_none else _text
 
     elif isinstance(value, (int, float, bool, Number)):
         if strict:
@@ -58,7 +62,8 @@ def str_or_none(
                 "Object with __str__ or __repr__ cannot be converted to str "
                 + f"in strict mode: {value}"
             )
-        return str(value).strip() if strip else str(value)
+        _text = str(value).strip() if strip else str(value)
+        return None if not _text and empty_str_to_none else _text
 
     else:
         raise ValueError(f"Cannot convert to str: {value}")
@@ -66,9 +71,16 @@ def str_or_none(
 
 class CallableModule(types.ModuleType):
     def __call__(
-        self, value: typing.Any, *, strip: bool = True, strict: bool = True
+        self,
+        value: typing.Any,
+        *,
+        strip: bool = True,
+        strict: bool = True,
+        empty_str_to_none: bool = True,
     ) -> typing.Optional[str]:
-        return str_or_none(value, strip=strip, strict=strict)
+        return str_or_none(
+            value, strip=strip, strict=strict, empty_str_to_none=empty_str_to_none
+        )
 
 
 current_module = sys.modules[__name__]

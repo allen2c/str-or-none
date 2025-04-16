@@ -27,17 +27,23 @@ str_or_none("  hi  ", strip=False)  # '  hi  '
 class Custom:
     def __str__(self):
         return "custom!"
+
 str_or_none(Custom(), strict=False)  # 'custom!'
+str_or_none("")  # None (default: empty_str_to_none=True)
+str_or_none("", empty_str_to_none=False)  # ''
+str_or_none("   ")  # None (after strip)
+str_or_none("   ", empty_str_to_none=False)  # ''
 ```
 
 ## API
 
 ```python
-def str_or_none(value, *, strip=True, strict=True) -> Optional[str]:
+def str_or_none(value, *, strip=True, strict=True, empty_str_to_none=True) -> Optional[str]:
     ...
 ```
 
 - `strip`: Remove leading/trailing whitespace (default: True)
 - `strict`: Raise `ValueError` for non-string types (default: True)
+- `empty_str_to_none`: If True, return None for empty strings (after optional strip). Default: True.
 
 Returns a string or `None`, or raises `ValueError` if conversion is not allowed.
